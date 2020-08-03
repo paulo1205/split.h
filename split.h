@@ -32,7 +32,7 @@
 
 namespace {
 
-const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.1 2020/08/03 08:30:32 pappires Exp pappires $"};
+const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.2 2020/08/03 09:38:10 pappires Exp pappires $"};
 
 }
 

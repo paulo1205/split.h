@@ -32,7 +32,7 @@
 
 namespace {
 
-const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.2 2020/08/03 09:38:10 pappires Exp pappires $"};
+const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.3 2020/08/11 08:42:25 pappires Exp pappires $"};
 
 }
 
@@ -313,13 +313,14 @@ split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	char_t sep,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			sep, max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -334,13 +335,14 @@ split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	const std::basic_string_view<char_t, char_traits_t> sep,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			sep, max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -355,13 +357,14 @@ split(
 	const std::basic_string_view<char_t, char_traits_t> str,
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &sep,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			str,
 			std::basic_string_view<char_t, char_traits_t>(sep), max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -377,13 +380,14 @@ split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	const std::basic_string<char_t, char_traits_t, sep_ch_alloc_t> &sep,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			std::basic_string_view<char_t, char_traits_t>(sep), max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -399,13 +403,14 @@ split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	const std::basic_regex<char_t, regex_traits_t> &sep_re,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			sep_re, max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -419,13 +424,14 @@ inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out
 split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -440,6 +446,7 @@ template<
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const char_t *str, char_t sep, size_t max_fields=0,
+	const char_traits_t trait_obj=char_traits_t(),
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
@@ -502,6 +509,7 @@ template<
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const char_t *str, const char_t *sep, size_t max_fields=0,
+	const char_traits_t trait_obj=char_traits_t(),
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
@@ -524,6 +532,7 @@ inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out
 split(
 	const char_t *str, const std::basic_regex<char_t, regex_traits_t> &sep_re,
 	size_t max_fields=0,
+	const char_traits_t trait_obj=char_traits_t(),
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
@@ -544,6 +553,7 @@ template<
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const char_t *str, size_t max_fields=0,
+	const char_traits_t trait_obj=char_traits_t(),
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
@@ -568,13 +578,14 @@ split(
 	const char_t *str,
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &sep,
 	size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
 			std::basic_string_view<char_t, char_traits_t>(sep), max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }
@@ -588,13 +599,14 @@ inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out
 split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
 	const char_t *sep, size_t max_fields=0,
+	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			str,
 			std::basic_string_view<char_t, char_traits_t>(sep), max_fields,
-			out_ch_alloc_t(), alloc_str
+			alloc_ch, alloc_str
 		)
 	;
 }

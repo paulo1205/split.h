@@ -32,7 +32,7 @@
 
 namespace {
 
-const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.3 2020/08/11 08:42:25 pappires Exp pappires $"};
+const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.4 2020/08/21 23:39:05 pappires Exp pappires $"};
 
 }
 
@@ -199,7 +199,6 @@ template<
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<char_t, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
@@ -221,7 +220,7 @@ split(
 		sep_str.resize(to_next-&sep_str[0]);
 		sep_re.reset(new std::basic_regex<char_t>(sep_str));
 	}
-	return split(str, *sep_re, max_fields, alloc_ch, alloc_str);
+	return split(str, *sep_re, 0, alloc_ch, alloc_str);
 }
 
 template<
@@ -232,11 +231,10 @@ template<
 inline std::vector<std::basic_string<char, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<char, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
-	return split(str, std::regex("\\s+"), max_fields, alloc_ch, alloc_str);
+	return split(str, std::regex("\\s+"), 0, alloc_ch, alloc_str);
 }
 
 template<
@@ -247,11 +245,10 @@ template<
 inline std::vector<std::basic_string<wchar_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<wchar_t, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
-	return split(str, std::wregex(L"\\s+"), max_fields, alloc_ch, alloc_str);
+	return split(str, std::wregex(L"\\s+"), 0, alloc_ch, alloc_str);
 }
 
 template<
@@ -262,11 +259,10 @@ template<
 inline std::vector<std::basic_string<char32_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<char32_t, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
-	return split(str, std::basic_regex<char32_t>(U"\\s+"), max_fields, alloc_ch, alloc_str);
+	return split(str, std::basic_regex<char32_t>(U"\\s+"), 0, alloc_ch, alloc_str);
 }
 
 template<
@@ -277,11 +273,10 @@ template<
 inline std::vector<std::basic_string<char16_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<char16_t, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
-	return split(str, std::basic_regex<char16_t>(u"\\s+"), max_fields, alloc_ch, alloc_str);
+	return split(str, std::basic_regex<char16_t>(u"\\s+"), 0, alloc_ch, alloc_str);
 }
 
 #if __cplusplus >= 202002L
@@ -293,11 +288,10 @@ template<
 inline std::vector<std::basic_string<char8_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string_view<char8_t, char_traits_t> str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
-	return split(str, std::basic_regex<char8_t>(u8"\\s+"), max_fields, alloc_ch, alloc_str);
+	return split(str, std::basic_regex<char8_t>(u8"\\s+"), 0, alloc_ch, alloc_str);
 }
 #endif
 
@@ -423,14 +417,12 @@ template<
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
 	const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str,
-	size_t max_fields=0,
 	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
 	const out_str_alloc_t &alloc_str=out_str_alloc_t()
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
-			max_fields,
 			alloc_ch, alloc_str
 		)
 	;
@@ -551,16 +543,28 @@ template<
 	class out_str_alloc_t=std::allocator<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>>
 >
 inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
+split(const char_t *str){
+	return
+		split(
+			std::basic_string_view<char_t, char_traits_t>(str),
+			out_ch_alloc_t(), out_str_alloc_t()
+		)
+	;
+}
+
+template<
+	class char_t, class char_traits_t,
+	class out_ch_alloc_t,
+	class out_str_alloc_t
+>
+inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
 split(
-	const char_t *str, size_t max_fields=0,
-	const char_traits_t trait_obj=char_traits_t(),
-	const out_ch_alloc_t &alloc_ch=out_ch_alloc_t(),
-	const out_str_alloc_t &alloc_str=out_str_alloc_t()
+	const char_t *str, const char_traits_t &,
+	const out_ch_alloc_t &alloc_ch, const out_str_alloc_t &alloc_str
 ){
 	return
 		split(
 			std::basic_string_view<char_t, char_traits_t>(str),
-			max_fields,
 			alloc_ch, alloc_str
 		)
 	;

@@ -32,7 +32,7 @@
 
 namespace {
 
-const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.4 2020/08/21 23:39:05 pappires Exp pappires $"};
+const std::string SPLIT_H_RCSID{"$Id: split.h,v 1.5 2020/08/25 20:12:59 pappires Exp $"};
 
 }
 
@@ -191,6 +191,7 @@ split(
 	return result;
 }
 
+#if 0	// Waiting for C++20's concepts
 template<
 	class char_t, class char_traits_t,
 	class out_ch_alloc_t=std::allocator<char_t>,
@@ -205,9 +206,7 @@ split(
 	static const char sep_re_8[]="\\s+";
 	static std::unique_ptr<std::basic_regex<char_t>> sep_re;
 	if(!sep_re){
-		auto &converter=
-			std::use_facet<std::codecvt<char_t, char, std::mbstate_t>>(std::locale())
-		;
+		auto &converter=std::use_facet<std::codecvt<char_t, char, std::mbstate_t>>(std::locale());
 		std::mbstate_t mbs{};
 		std::basic_string<char_t, char_traits_t> sep_str(sizeof sep_re_8, char_t());
 		const char *from_next;
@@ -293,6 +292,61 @@ split(
 ){
 	return split(str, std::basic_regex<char8_t>(u8"\\s+"), 0, alloc_ch, alloc_str);
 }
+#endif
+#else
+template<class char_t, class char_traits_t>
+inline std::vector<std::basic_string<char_t, char_traits_t>>
+split(const std::basic_string_view<char_t, char_traits_t> str){
+	static const char sep_re_8[]="\\s+";
+	static std::unique_ptr<std::basic_regex<char_t>> sep_re;
+	if(!sep_re){
+		auto &converter=std::use_facet<std::codecvt<char_t, char, std::mbstate_t>>(std::locale());
+		std::mbstate_t mbs{};
+		std::basic_string<char_t, char_traits_t> sep_str(sizeof sep_re_8, char_t());
+		const char *from_next;
+		char_t *to_next;
+		converter.in(
+			mbs,
+			sep_re_8, sep_re_8+sizeof sep_re_8, from_next,
+			&sep_str[0], &sep_str[sep_str.size()], to_next
+		);
+		sep_str.resize(to_next-&sep_str[0]);
+		sep_re.reset(new std::basic_regex<char_t>(sep_str));
+	}
+	return split(str, *sep_re, 0);
+}
+
+template<class char_traits_t>
+inline std::vector<std::basic_string<char, char_traits_t>>
+split(const std::basic_string_view<char, char_traits_t> str){
+	return split(str, std::regex("\\s+"), 0);
+}
+
+template<class char_traits_t>
+inline std::vector<std::basic_string<wchar_t, char_traits_t>>
+split(const std::basic_string_view<wchar_t, char_traits_t> str){
+	return split(str, std::wregex(L"\\s+"), 0);
+}
+
+template<class char_traits_t>
+inline std::vector<std::basic_string<char32_t, char_traits_t>>
+split(const std::basic_string_view<char32_t, char_traits_t> str){
+	return split(str, std::basic_regex<char32_t>(U"\\s+"), 0);
+}
+
+template<class char_traits_t>
+inline std::vector<std::basic_string<char16_t, char_traits_t>>
+split(const std::basic_string_view<char16_t, char_traits_t> str){
+	return split(str, std::basic_regex<char16_t>(u"\\s+"), 0);
+}
+
+#if __cplusplus >= 202002L
+template<class char_traits_t>
+inline std::vector<std::basic_string<char8_t, char_traits_t>>
+split(	const std::basic_string_view<char8_t, char_traits_t> str){
+	return split(str, std::basic_regex<char8_t>(u8"\\s+"), 0);
+}
+#endif
 #endif
 
 
@@ -409,6 +463,7 @@ split(
 	;
 }
 
+#if 0	// Waiting for C++-20 concepts.
 template<
 	class char_t, class char_traits_t,
 	class in_ch_alloc_t, class out_ch_alloc_t=in_ch_alloc_t,
@@ -427,6 +482,13 @@ split(
 		)
 	;
 }
+#else
+template<class char_t, class char_traits_t, class in_ch_alloc_t>
+inline std::vector<std::basic_string<char_t, char_traits_t>>
+split(const std::basic_string<char_t, char_traits_t, in_ch_alloc_t> &str){
+	return split(std::basic_string_view<char_t, char_traits_t>(str));
+}
+#endif
 
 
 /****** Split functions with argument(s) that is(are) pointer(s) to characters ******/
@@ -537,37 +599,10 @@ split(
 	;
 }
 
-template<
-	class char_t, class char_traits_t=std::char_traits<char_t>,
-	class out_ch_alloc_t=std::allocator<char_t>,
-	class out_str_alloc_t=std::allocator<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>>
->
-inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
+template<class char_t, class char_traits_t=std::char_traits<char_t>>
+inline std::vector<std::basic_string<char_t, char_traits_t>>
 split(const char_t *str){
-	return
-		split(
-			std::basic_string_view<char_t, char_traits_t>(str),
-			out_ch_alloc_t(), out_str_alloc_t()
-		)
-	;
-}
-
-template<
-	class char_t, class char_traits_t,
-	class out_ch_alloc_t,
-	class out_str_alloc_t
->
-inline std::vector<std::basic_string<char_t, char_traits_t, out_ch_alloc_t>, out_str_alloc_t>
-split(
-	const char_t *str, const char_traits_t &,
-	const out_ch_alloc_t &alloc_ch, const out_str_alloc_t &alloc_str
-){
-	return
-		split(
-			std::basic_string_view<char_t, char_traits_t>(str),
-			alloc_ch, alloc_str
-		)
-	;
+	return split(std::basic_string_view<char_t, char_traits_t>(str));
 }
 
 
@@ -761,7 +796,7 @@ inline std::string join(
 template<class input_iter_t>
 inline std::wstring join(
 	input_iter_t first, input_iter_t last,
-	wchar_t joiner=L' ',
+	wchar_t joiner,
 	const std::locale &out_locale=std::locale()
 ){
 	return basic_join<wchar_t>(first, last, joiner, joiner, out_locale);
@@ -770,7 +805,7 @@ inline std::wstring join(
 template<class container_t>
 inline std::wstring join(
 	const container_t &cont,
-	wchar_t joiner=L' ',
+	wchar_t joiner,
 	const std::locale &out_locale=std::locale()
 ){
 	return
